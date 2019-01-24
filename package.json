@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "homepage": "https://github.com/jagrajan/notes-organizer",
+  "homepage": "https://github.com/jagrajan/blog",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jagrajan/notes-organizer.git"
+    "url": "https://github.com/jagrajan/blog.git"
   },
   "scripts": {
     "create-db": "node -r dotenv/config init-db.js",
@@ -24,10 +24,12 @@
     "credential": "^2.0.0",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
+    "express-fingerprint": "^1.1.2",
     "express-myconnection": "^1.0.4",
     "express-session": "^1.15.6",
     "jsonwebtoken": "^8.3.0",
     "mysql": "^2.16.0",
+    "node-cache": "^4.2.0",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",

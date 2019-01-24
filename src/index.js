@@ -1,8 +1,8 @@
 import bodyParser from 'body-parser';
 import express from 'express';
-import jwt from 'jsonwebtoken';
 import passport from 'passport';
 import morgan from 'morgan';
+import Fingerprint from 'express-fingerprint';
 
 import { query } from './db/index';
 
@@ -20,26 +20,13 @@ passport.use('jwt', jwtStrategy);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// app.use((req, res, next) => {
-//   if (!req.headers.authorization) {
-//     return res.status(401).end();
-//   }
-
-//   // get the last part from a authorization header string like "bearer token-value"
-//   const token = req.headers.authorization.split(' ')[1];
-
-//   // decode the token using a secret key-phrase
-//   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-//     if (err) {
-//       return res.status(401).end();
-//     }
-
-//     const auth = decoded.auth;
-
-//     console.log('Authorization: ', decoded);
-//   });
-//   next();
-// });
+app.use(Fingerprint({
+  parameters: [
+    Fingerprint.useragent,
+    Fingerprint.acceptHeaders,
+    Fingerprint.geoip
+  ],
+}));
 
 app.use(morgan('tiny'));
 
