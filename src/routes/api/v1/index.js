@@ -4,9 +4,11 @@ import passport from 'passport';
 import authRouter from './auth/auth';
 import userRouter from './user/user';
 
+import { ensureAuthenticated } from '../../../middleware/auth';
+
 const router = Router();
 
-router.get('/protected', passport.authenticate('jwt', { session: false }),
+router.get('/protected', ensureAuthenticated(true),
   (req, res) => {
     return res.json({ message: 'greetings!' });
   }

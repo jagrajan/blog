@@ -3,10 +3,18 @@ import jwt from 'jsonwebtoken';
 import { query } from '../db/index';
 import { error } from '../debug/logger';
 import pw from '../util/pw';
-import { set } from '../cache/auth_cache';
+import { set } from '../cache/auth-cache';
 
 export const login = (email, password, fingerprint, callback) => {
-  query('SELECT id, email, password FROM users.profile WHERE email = $1',
+  query(`SELECT id, email, password,
+    CASE
+      WHEN id IN (
+        SELECT user_id FROM admin.admin
+      ) THEN true
+      ELSE false
+    END
+      AS admin
+    FROM users.profile WHERE email = $1`,
     [email], (err, res) => {
     if (err) {
       error('Error retreving user during log in');
@@ -31,13 +39,13 @@ export const login = (email, password, fingerprint, callback) => {
         return;
       }
       const opts = {};
-      opts.expiresIn = 120;
+      opts.expiresIn = 600;
       const expireStamp = new Date();
       expireStamp.setTime(expireStamp.getTime() + 120000);
       const expire = expireStamp.toISOString().slice(0, 19).replace('T', ' ');
-      query('INSERT INTO users.auth_key(user_id, expire_on, fingerprint)'
-        + ' VALUES($1, $2, $3) RETURNING id',
-        [row.id, expire, fingerprint], (err2, res2) => {
+      query('INSERT INTO users.auth_key(user_id, expire_on, fingerprint, admin)'
+        + ' VALUES($1, $2, $3, $4) RETURNING id',
+        [row.id, expire, fingerprint, row.admin], (err2, res2) => {
           if (err2) {
             error('Error retreving create auth key');
             error(err2);
@@ -46,7 +54,11 @@ export const login = (email, password, fingerprint, callback) => {
           }
           const auth_key = res2.rows[0].id;
           const token = jwt.sign({ auth_key }, process.env.JWT_SECRET, opts);
-          set(auth_key, fingerprint, row.id, (err3, success) => {
+          set(auth_key, { 
+              fingerprint: fingerprint,
+              user_id: row.id,
+              admin: row.admin,
+          }, (err3, success) => {
             callback(err3, { token });
           });
         });

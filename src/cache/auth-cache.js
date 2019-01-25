@@ -3,17 +3,17 @@ import { log, error } from '../debug/logger';
 
 const cache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
-export const set = (auth_key, fingerprint, user_id, callback) => {
-  cache.set(auth_key, { fingerprint, user_id }, (err, success) => {
+export const set = (auth_key, key_data, callback) => {
+  cache.set(auth_key, key_data, (err, success) => {
     if (err || !success) {
       error('Error inserting auth key in cache');
-      error(`Key: ${auth_key}, Fingerprint ${fingerprint}, User id: ${user_id}`); 
+      error(`Key: ${auth_key}, Data ${key_data}`); 
       error(err);
       callback(err, success);
       return;
     }
     log('Inserted auth key in cache');
-    log(`Key: ${auth_key}, Fingerprint ${fingerprint}, User id: ${user_id}`); 
+    log(`Key: ${auth_key}, Data ${key_data}`); 
     log(success);
     callback(err, success);
   });
